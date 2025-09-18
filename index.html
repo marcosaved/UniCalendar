@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unibo Calendar</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around; /* distribute sections by screen height */
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2vh;
+      box-sizing: border-box;
+    }
+
+    section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      max-width: 450px; /* keeps buttons from being too wide on big screens */
+    }
+
+    button {
+      background: #9C2007;
+      color: white;
+      font-size: clamp(1rem, 5vw, 1.8rem); /* scales with screen size */
+      font-weight: bold;
+      padding: 1em;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      transition: transform 0.15s ease, background 0.3s ease;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #C82909;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    input[type="date"] {
+      padding: 0.8em;
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top section: automatic button -->
+  <section>
+    <button id="calendarButton" onclick="goToCalendar()">Loading...</button>
+  </section>
+
+  <!-- Bottom section: custom date picker -->
+  <section>
+    <input type="date" id="customDate">
+    <button onclick="goToCustomDate()">Go to selected date</button>
+  </section>
+
+  <script>
+    function getTargetDate() {
+      let today = new Date();
+      let afterSix = today.getHours() >= 18;
+
+      if (afterSix) {
+        today.setDate(today.getDate() + 1);
+      }
+
+      // Skip weekends
+      if (today.getDay() === 6) {
+        today.setDate(today.getDate() + 2);
+      } else if (today.getDay() === 0) {
+        today.setDate(today.getDate() + 1);
+      }
+
+      return { date: today, afterSix };
+    }
+
+    function formatDate(date) {
+      let year = date.getFullYear();
+      let month = String(date.getMonth() + 1).padStart(2, '0');
+      let day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function goToCalendar() {
+      let url = "https://corsi.unibo.it/2cycle/AerospaceEngineering/timetable?anno=2&curricula=B79-000&calendar_view=&date=2025-09-15&insegnamenti=2025-000-370242--I%7C93853&insegnamenti=2025-000-370241--I%7C73205&insegnamenti=2025-000-394159--I%7C73194_1&insegnamenti=2025-000-394160--I%7C73194_2&insegnamenti=2025-000-385429--I%7C73198&insegnamenti=2025-000-398341--I%7C93850";
+      let { date } = getTargetDate();
+      let finalUrl = url.replace(/date=\d{4}-\d{2}-\d{2}/, `date=${formatDate(date)}`);
+      window.location.href = finalUrl;
+    }
+
+    function goToCustomDate() {
+      let url = "https://corsi.unibo.it/2cycle/AerospaceEngineering/timetable?anno=2&curricula=B79-000&calendar_view=&date=2025-09-15&insegnamenti=2025-000-370242--I%7C93853&insegnamenti=2025-000-370241--I%7C73205&insegnamenti=2025-000-394159--I%7C73194_1&insegnamenti=2025-000-394160--I%7C73194_2&insegnamenti=2025-000-385429--I%7C73198&insegnamenti=2025-000-398341--I%7C93850";
+      let input = document.getElementById("customDate").value;
+
+      if (!input) {
+        alert("Please select a date first!");
+        return;
+      }
+
+      let finalUrl = url.replace(/date=\d{4}-\d{2}-\d{2}/, `date=${input}`);
+      window.location.href = finalUrl;
+    }
+
+    // Initialize page
+    window.onload = function () {
+      let { afterSix } = getTargetDate();
+      let btn = document.getElementById("calendarButton");
+      btn.textContent = afterSix
+        ? "Go to Calendar (Next day)"
+        : "Go to Calendar (Today)";
+
+      // Pre-fill date picker with today's date
+      let today = new Date();
+      let y = today.getFullYear();
+      let m = String(today.getMonth() + 1).padStart(2, '0');
+      let d = String(today.getDate()).padStart(2, '0');
+      document.getElementById("customDate").value = `${y}-${m}-${d}`;
+    };
+  </script>
+</body>
+</html>
